@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Silent SSO Check</title>
+    <meta charset="UTF-8">
+    <script>
+        // 부모 창으로 현재 URL 전달
+        try {
+            // 더 안전한 방식으로 메시지 전달
+            const url = window.location.href;
+            console.log('Silent Check SSO URL:', url);
+            
+            // 가능한 모든 출처에 메시지 전송 시도
+            const origins = [
+                window.location.origin,
+                'http://localhost:3000',
+                'http://localhost'
+            ];
+            
+            for (const origin of origins) {
+                try {
+                    parent.postMessage(url, origin);
+                    console.log('Silent check SSO 메시지 전송 성공 -', origin);
+                } catch (err) {
+                    console.error('출처로 메시지 전송 실패:', origin, err);
+                }
+            }
+        } catch (e) {
+            console.error("Silent SSO check 오류:", e);
+        }
+    </script>
+</head>
+<body>
+    <!-- Keycloak Silent SSO Check -->
+    <p style="display: none;">이 페이지는 Keycloak SSO 체크를 위한 페이지입니다.</p>
+</body>
+</html>

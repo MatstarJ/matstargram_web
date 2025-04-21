@@ -1,0 +1,14 @@
+{
+  "realm": "Matstar",
+  "auth-server-url": "https://access.matstar.kro.kr/public/",
+  "ssl-required": "external",
+  "resource": "matstarworld",
+  "public-client": true,
+  "confidential-port": 0,
+  "enable-cors": true,
+  "verify-token-audience": false,
+  "use-resource-role-mappings": true,
+  "pkce-method": "S256",
+  "token-minimum-time-to-live": 10,
+  "min-validity": 10
+}
