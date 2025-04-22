@@ -134,7 +134,7 @@ const TextArea = styled.textarea`
 // CORS 테스트를 위한 다양한 출처 목록
 const TEST_ORIGINS = [
   'http://localhost:8080',
-  'https://access.matstar.kro.kr/api'
+  'https://access.matstar.kro.kr/api/'
 ];
 
 // HTTP 메서드 리스트

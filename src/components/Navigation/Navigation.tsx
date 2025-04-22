@@ -9,9 +9,8 @@ import {
 import styled, { css } from 'styled-components';
 import Search from '../Search/Search';
 import { SearchContext, NotificationsContext } from '../../App';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Notifications from '../Notifications/Notifications';
-import { useAuth } from '../../contexts/AuthContext';
 
 // 호버 효과를 가진 MenuItem 스타일 재정의
 const MenuItemWithHover = styled(MenuItem)`
@@ -57,14 +56,6 @@ const LogoText = styled.div`
   font-weight: 600;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
   white-space: nowrap;
-`;
-
-// 스타일링된 링크 컴포넌트
-const StyledLink = styled(Link)`
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: inherit;
 `;
 
 // 메뉴 텍스트 스타일 재정의
@@ -162,7 +153,6 @@ const Navigation: React.FC = () => {
   
   const { isSearchOpen, setIsSearchOpen } = useContext(SearchContext);
   const { isNotificationsOpen, setIsNotificationsOpen } = useContext(NotificationsContext);
-  const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
 
   // 컨텍스트 상태가 변경될 때 windowState 동기화
@@ -181,7 +171,7 @@ const Navigation: React.FC = () => {
     const updateCurrentPage = () => {
       const path = window.location.pathname;
       
-      if (path === '/' || path === '/home') {
+      if (path === '/') {
         setCurrentPage('home');
       } else if (path === '/profile') {
         setCurrentPage('profile');
@@ -269,28 +259,40 @@ const Navigation: React.FC = () => {
         setIsNotificationsOpen(false);
       }
     } else {
-      // 다른 메뉴 항목 클릭 시 검색창과 알림창 닫기
-      setIsSearchOpen(false);
-      setIsNotificationsOpen(false);
-      
-      // 현재 페이지 상태 업데이트
+      // 다른 메뉴 클릭 시 (홈, 프로필 등)
       setCurrentPage(menu);
       
-      // 해당 메뉴 페이지로 이동
-      if (menu === 'home') {
-        navigate('/home');
-      } else if (menu === 'explore') {
-        navigate('/explore');
-      } else if (menu === 'reels') {
-        navigate('/reels');
-      } else if (menu === 'messages') {
-        navigate('/messages');
-      } else if (menu === 'create') {
-        navigate('/create');
-      } else if (menu === 'profile') {
-        navigate('/profile');
-      } else if (menu === 'test') {
-        navigate('/test');
+      // 검색창이나 알림창이 열려있다면 닫기
+      if (isSearchOpen) {
+        setIsSearchOpen(false);
+      }
+      if (isNotificationsOpen) {
+        setIsNotificationsOpen(false);
+      }
+      
+      // 각 메뉴 버튼에 따라 다른 페이지로 이동
+      switch (menu) {
+        case 'home':
+          navigate('/'); // 홈 버튼 클릭 시 메인 피드 페이지로 이동
+          break;
+        case 'profile':
+          navigate('/profile'); // 프로필 버튼 클릭 시 프로필 페이지로 이동
+          break;
+        case 'explore':
+          navigate('/explore'); // 탐색 버튼 클릭 시 탐색 페이지로 이동
+          break;
+        case 'reels':
+          navigate('/reels'); // 릴스 페이지로 이동
+          break;
+        case 'messages':
+          navigate('/messages'); // 메시지 페이지로 이동
+          break;
+        case 'create':
+          navigate('/create'); // 게시물 생성 페이지로 이동
+          break;
+        case 'test':
+          navigate('/test'); // 테스트 페이지로 이동
+          break;
       }
       
       // 이벤트 발행
@@ -326,23 +328,16 @@ const Navigation: React.FC = () => {
     return '';
   };
 
-  // 로딩 중이거나 인증되지 않은 경우 네비게이션 숨기기
-  if (isLoading || !isAuthenticated) {
-    return null;
-  }
-
   return (
     <>
       <NavigationContainerCollapsed>
-        <LogoContainerStyled>
-          <StyledLink to="/home">
-            <div className="logo-icon">
-              <svg aria-label="Instagram" height="24" role="img" viewBox="0 0 24 24" width="24">
-                <path d="M12 2.982c2.937 0 3.285.011 4.445.064a6.087 6.087 0 0 1 2.042.379 3.408 3.408 0 0 1 1.265.823 3.408 3.408 0 0 1 .823 1.265 6.087 6.087 0 0 1 .379 2.042c.053 1.16.064 1.508.064 4.445s-.011 3.285-.064 4.445a6.087 6.087 0 0 1-.379 2.042 3.643 3.643 0 0 1-2.088 2.088 6.087 6.087 0 0 1-2.042.379c-1.16.053-1.508.064-4.445.064s-3.285-.011-4.445-.064a6.087 6.087 0 0 1-2.043-.379 3.408 3.408 0 0 1-1.264-.823 3.408 3.408 0 0 1-.823-1.265 6.087 6.087 0 0 1-.379-2.042c-.053-1.16-.064-1.508-.064-4.445s.011-3.285.064-4.445a6.087 6.087 0 0 1 .379-2.042 3.408 3.408 0 0 1 .823-1.265 3.408 3.408 0 0 1 1.265-.823 6.087 6.087 0 0 1 2.042-.379c1.16-.053 1.508-.064 4.445-.064M12 1c-2.987 0-3.362.013-4.535.066a8.074 8.074 0 0 0-2.67.511 5.392 5.392 0 0 0-1.949 1.27 5.392 5.392 0 0 0-1.269 1.948 8.074 8.074 0 0 0-.51 2.67C1.013 8.638 1 9.013 1 12s.013 3.362.066 4.535a8.074 8.074 0 0 0 .511 2.67 5.392 5.392 0 0 0 1.27 1.949 5.392 5.392 0 0 0 1.948 1.269 8.074 8.074 0 0 0 2.67.51C8.638 22.987 9.013 23 12 23s3.362-.013 4.535-.066a8.074 8.074 0 0 0 2.67-.511 5.625 5.625 0 0 0 3.218-3.218 8.074 8.074 0 0 0 .51-2.67C22.987 15.362 23 14.987 23 12s-.013-3.362-.066-4.535a8.074 8.074 0 0 0-.511-2.67 5.392 5.392 0 0 0-1.27-1.949 5.392 5.392 0 0 0-1.948-1.269 8.074 8.074 0 0 0-2.67-.51C15.362 1.013 14.987 1 12 1Zm0 5.351A5.649 5.649 0 1 0 17.649 12 5.649 5.649 0 0 0 12 6.351Zm0 9.316A3.667 3.667 0 1 1 15.667 12 3.667 3.667 0 0 1 12 15.667Zm5.872-10.859a1.32 1.32 0 1 0 1.32 1.32 1.32 1.32 0 0 0-1.32-1.32Z"></path>
-              </svg>
-            </div>
-            <LogoText>Instagram</LogoText>
-          </StyledLink>
+        <LogoContainerStyled onClick={() => navigate('/')}>
+          <div className="logo-icon">
+            <svg aria-label="Instagram" height="24" role="img" viewBox="0 0 24 24" width="24">
+              <path d="M12 2.982c2.937 0 3.285.011 4.445.064a6.087 6.087 0 0 1 2.042.379 3.408 3.408 0 0 1 1.265.823 3.408 3.408 0 0 1 .823 1.265 6.087 6.087 0 0 1 .379 2.042c.053 1.16.064 1.508.064 4.445s-.011 3.285-.064 4.445a6.087 6.087 0 0 1-.379 2.042 3.643 3.643 0 0 1-2.088 2.088 6.087 6.087 0 0 1-2.042.379c-1.16.053-1.508.064-4.445.064s-3.285-.011-4.445-.064a6.087 6.087 0 0 1-2.043-.379 3.408 3.408 0 0 1-1.264-.823 3.408 3.408 0 0 1-.823-1.265 6.087 6.087 0 0 1-.379-2.042c-.053-1.16-.064-1.508-.064-4.445s.011-3.285.064-4.445a6.087 6.087 0 0 1 .379-2.042 3.408 3.408 0 0 1 .823-1.265 3.408 3.408 0 0 1 1.265-.823 6.087 6.087 0 0 1 2.042-.379c1.16-.053 1.508-.064 4.445-.064M12 1c-2.987 0-3.362.013-4.535.066a8.074 8.074 0 0 0-2.67.511 5.392 5.392 0 0 0-1.949 1.27 5.392 5.392 0 0 0-1.269 1.948 8.074 8.074 0 0 0-.51 2.67C1.013 8.638 1 9.013 1 12s.013 3.362.066 4.535a8.074 8.074 0 0 0 .511 2.67 5.392 5.392 0 0 0 1.27 1.949 5.392 5.392 0 0 0 1.948 1.269 8.074 8.074 0 0 0 2.67.51C8.638 22.987 9.013 23 12 23s3.362-.013 4.535-.066a8.074 8.074 0 0 0 2.67-.511 5.625 5.625 0 0 0 3.218-3.218 8.074 8.074 0 0 0 .51-2.67C22.987 15.362 23 14.987 23 12s-.013-3.362-.066-4.535a8.074 8.074 0 0 0-.511-2.67 5.392 5.392 0 0 0-1.27-1.949 5.392 5.392 0 0 0-1.948-1.269 8.074 8.074 0 0 0-2.67-.51C15.362 1.013 14.987 1 12 1Zm0 5.351A5.649 5.649 0 1 0 17.649 12 5.649 5.649 0 0 0 12 6.351Zm0 9.316A3.667 3.667 0 1 1 15.667 12 3.667 3.667 0 0 1 12 15.667Zm5.872-10.859a1.32 1.32 0 1 0 1.32 1.32 1.32 1.32 0 0 0-1.32-1.32Z"></path>
+            </svg>
+          </div>
+          <LogoText>Instagram</LogoText>
         </LogoContainerStyled>
 
         <NavigationMenu>

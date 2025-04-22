@@ -55,6 +55,12 @@ const Create: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadAreaRef = useRef<HTMLDivElement>(null);
 
+  // 비디오 재생 관련 상태 추가
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [videoProgress, setVideoProgress] = useState<number>(0);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+
   // 파일 선택 핸들러
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -170,12 +176,81 @@ const Create: React.FC = () => {
 
   // 이미지/비디오 이동 핸들러
   const handlePrevMedia = () => {
+    // 현재 동영상이면 현재 시간 저장 및 일시정지
+    if (isVideo[currentMediaIndex] && videoRef.current) {
+      setVideoProgress(videoRef.current.currentTime);
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
     setCurrentMediaIndex(prev => (prev > 0 ? prev - 1 : prev));
   };
 
   const handleNextMedia = () => {
+    // 현재 동영상이면 현재 시간 저장 및 일시정지
+    if (isVideo[currentMediaIndex] && videoRef.current) {
+      setVideoProgress(videoRef.current.currentTime);
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
     setCurrentMediaIndex(prev => (prev < mediaPreviews.length - 1 ? prev + 1 : prev));
   };
+
+  // 음소거 토글 핸들러
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation(); // 버블링 방지(영상 재생/일시정지 방지)
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  // 동영상 클릭 핸들러 추가
+  const handleVideoClick = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play()
+          .then(() => setIsPlaying(true))
+          .catch(err => console.warn('비디오 재생 오류:', err));
+      } else {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      }
+    }
+  };
+
+  // 미디어 인덱스가 변경될 때 동영상 자동 재생
+  useEffect(() => {
+    if (isVideo[currentMediaIndex] && videoRef.current) {
+      // 해당 동영상이 로드되었을 때 실행할 함수 정의
+      const handleLoadedData = () => {
+        // 이전에 저장된 시간이 있으면 해당 시간부터 재생
+        if (videoProgress > 0) {
+          videoRef.current.currentTime = videoProgress;
+        }
+      
+        // 자동 재생
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => setIsPlaying(true))
+            .catch(err => console.warn('자동 재생 오류:', err));
+        }
+      };
+      
+      // 동영상이 이미 로드되었다면 바로 실행
+      if (videoRef.current.readyState >= 2) {
+        handleLoadedData();
+      } else {
+        // 아직 로드되지 않았다면 이벤트 리스너 추가
+        videoRef.current.addEventListener('loadeddata', handleLoadedData);
+        
+        // 클린업 함수
+        return () => {
+          videoRef.current?.removeEventListener('loadeddata', handleLoadedData);
+        };
+      }
+    }
+  }, [currentMediaIndex, isVideo, videoProgress]);
 
   // 미디어 삭제 핸들러
   const handleDeleteMedia = (index: number) => {
@@ -285,16 +360,77 @@ const Create: React.FC = () => {
               {mediaPreviews.length > 0 && (
                 <>
                   {isVideo[currentMediaIndex] ? (
-                    <video 
-                      src={mediaPreviews[currentMediaIndex]} 
-                      controls
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'contain',
-                        backgroundColor: 'black'
-                      }}
-                    />
+                    <>
+                      <video 
+                        ref={videoRef}
+                        src={mediaPreviews[currentMediaIndex]} 
+                        playsInline
+                        muted={isMuted}
+                        loop
+                        onClick={handleVideoClick}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'contain',
+                          backgroundColor: 'black',
+                          cursor: 'pointer'
+                        }}
+                      />
+                      {/* 재생/일시정지 오버레이 (재생 중이 아닐 때만 표시) */}
+                      {!isPlaying && (
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            background: 'rgba(0, 0, 0, 0.5)',
+                            borderRadius: '50%',
+                            width: '50px',
+                            height: '50px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            zIndex: 2
+                          }}
+                          onClick={handleVideoClick}
+                        >
+                          <svg fill="white" height="24" width="24" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"></path>
+                          </svg>
+                        </div>
+                      )}
+                      
+                      {/* 음소거 버튼 */}
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          bottom: '15px',
+                          right: '15px',
+                          background: 'rgba(0, 0, 0, 0.5)',
+                          borderRadius: '50%',
+                          width: '40px',
+                          height: '40px',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                          zIndex: 3
+                        }}
+                        onClick={toggleMute}
+                      >
+                        {isMuted ? (
+                          <svg fill="white" height="24" width="24" viewBox="0 0 24 24">
+                            <path d="M3.63 3.63a.996.996 0 000 1.41L7.29 8.7 7 9H4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h3l3 3v-4.59l4.18 4.18c-.65.49-1.38.88-2.18 1.11v2.06a8.996 8.996 0 003.76-1.74l1.49 1.49a.996.996 0 101.41-1.41L5.05 3.63a.996.996 0 00-1.42 0zM19 12c0 .82-.15 1.61-.41 2.34l1.53 1.53c.56-1.17.88-2.48.88-3.87 0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zm-7-8l-1.88 1.88L12 7.76zm4.5 8A4.5 4.5 0 0014 7.97v1.79l2.48 2.48c.01-.08.02-.16.02-.24z"></path>
+                          </svg>
+                        ) : (
+                          <svg fill="white" height="24" width="24" viewBox="0 0 24 24">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path>
+                          </svg>
+                        )}
+                      </div>
+                    </>
                   ) : (
                     <img 
                       src={mediaPreviews[currentMediaIndex]} 

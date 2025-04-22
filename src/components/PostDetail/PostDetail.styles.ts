@@ -5,10 +5,12 @@ export const PostDetailContainer = styled.div`
   background-color: white;
   border-radius: 4px;
   width: 100%;
-  max-width: 1400px;
-  max-height: 98vh;
+  max-width: 1600px;
+  height: 90vh;
+  max-height: 90vh;
   overflow: hidden;
   position: relative;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   
   @media (max-width: 935px) {
     flex-direction: column;
@@ -21,27 +23,42 @@ export const PostDetailContainer = styled.div`
 export const PostDetailImage = styled.div`
   flex: 2;
   background-color: black;
-  min-width: 650px;
-  max-height: 98vh;
+  width: 800px;
+  min-width: 800px;
+  height: 90vh;
+  max-height: 90vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
   
   img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
+    max-height: none;
+    transition: transform 0.3s ease;
+  }
+  
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    max-height: none;
+    transition: transform 0.3s ease;
   }
   
   @media (max-width: 935px) {
     min-width: 100%;
+    width: 100%;
     height: auto;
     aspect-ratio: 1 / 1;
   }
 `;
 
 export const PostDetailContent = styled.div`
-  width: 450px;
+  width: 500px;
   display: flex;
   flex-direction: column;
   border-left: 1px solid #dbdbdb;
@@ -59,7 +76,7 @@ export const PostDetailHeader = styled.header`
   padding: 18px 20px;
   border-bottom: 1px solid #efefef;
   position: relative;
-  height: 72px;
+  height: 60px;
 `;
 
 export const PostDetailAvatar = styled.div`
@@ -86,7 +103,7 @@ export const PostDetailComments = styled.div`
   flex: 1;
   overflow-y: auto;
   padding: 20px;
-  font-size: 15px;
+  font-size: 14px;
   
   &::-webkit-scrollbar {
     width: 8px;
@@ -104,8 +121,15 @@ export const PostDetailComments = styled.div`
 
 export const CommentItem = styled.div`
   display: flex;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   position: relative;
+  
+  &:first-child {
+    margin-top: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #efefef;
+  }
 `;
 
 export const CommentAvatar = styled.div`
@@ -125,6 +149,7 @@ export const CommentAvatar = styled.div`
 
 export const CommentContent = styled.div`
   flex: 1;
+  padding-right: 24px;
   
   & > div:first-child {
     margin-bottom: 6px;
@@ -142,10 +167,12 @@ export const CommentUsername = styled.span`
   font-weight: 600;
   color: #262626;
   margin-right: 6px;
+  font-size: 14px;
 `;
 
 export const CommentText = styled.span`
   color: #262626;
+  font-size: 14px;
 `;
 
 export const CommentLike = styled.button`
@@ -161,6 +188,8 @@ export const CommentLike = styled.button`
 export const CommentTime = styled.span`
   font-size: 12px;
   color: #8e8e8e;
+  text-transform: uppercase;
+  line-height: 1.2;
 `;
 
 export const PostDetailActions = styled.div`
@@ -196,8 +225,9 @@ export const PostDetailLikes = styled.div`
 
 export const PostDetailDescription = styled.div`
   padding: 0 20px;
-  margin-bottom: 12px;
-  font-size: 15px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.4;
   
   strong {
     font-weight: 600;
@@ -209,8 +239,9 @@ export const PostDetailTime = styled.div`
   padding: 0 20px;
   color: #8e8e8e;
   font-size: 12px;
+  margin-bottom: 10px;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  line-height: 1.2;
 `;
 
 export const PostDetailAddComment = styled.form`

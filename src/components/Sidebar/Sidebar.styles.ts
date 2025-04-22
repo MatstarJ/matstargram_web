@@ -2,6 +2,8 @@ import styled from 'styled-components';
 
 export const SidebarContainer = styled.div`
   padding: 0;
+  font-size: 14px;
+  line-height: 1.4;
 `;
 
 export const ProfileSection = styled.div`
