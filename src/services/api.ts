@@ -27,7 +27,8 @@ const getKeycloakInstance = (): Keycloak | null => {
 
 // 인증이 필요한 API 경로인지 확인하는 함수
 const isAuthRequired = (url: string): boolean => {
-  return url.includes('/test');
+  // 모든 API 경로에서 인증 필요 (필요에 따라 예외 추가 가능)
+  return true;
 };
 
 // 기본 헤더 가져오기
@@ -48,14 +49,14 @@ const getHeaders = (token?: string) => {
 
 // API 인스턴스 생성
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'https://access.matstar.kro.kr/api',
   headers: getHeaders(),
   withCredentials: true
 });
 
 // 인증되지 않은 API 인스턴스 생성 (인증 필요 없는 요청용)
 const unauthApi = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'https://access.matstar.kro.kr/api',
   headers: getHeaders(),
   withCredentials: true
 });
@@ -167,7 +168,7 @@ export const directApiCall = async (url: string, token?: string) => {
     const headers = getHeaders(token);
     console.log('직접 API 호출 헤더:', headers);
     
-    const response = await axios.get(`http://localhost:8080${url}`, { 
+    const response = await axios.get(`https://access.matstar.kro.kr/api${url}`, { 
       headers,
       withCredentials: true
     });
@@ -199,7 +200,7 @@ export const testApi = {
   // 직접 토큰을 전달하여 API 호출
   getTestWithToken: (token: string) => {
     console.log('getTestWithToken 호출:', token.substring(0, 20) + '...');
-    return axios.get('http://localhost:8080/test', {
+    return axios.get('https://access.matstar.kro.kr/api/test', {
       headers: getHeaders(token),
       withCredentials: true
     });

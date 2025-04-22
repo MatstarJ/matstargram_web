@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { ThemeProvider } from 'styled-components';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import GlobalStyle from './styles/GlobalStyles';
 import theme from './styles/theme';
 import Header from './components/Header/Header';
-import Feed from './components/Feed/Feed';
+import Home from './components/Home';
 import Navigation from './components/Navigation/Navigation';
 import PostDetail from './components/PostDetail/PostDetail';
 import Profile from './components/Profile';
@@ -15,7 +15,7 @@ import Create from './components/Create';
 import Messages from './components/Messages';
 import Test from './components/Test';
 import styled from 'styled-components';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // 검색 상태를 위한 Context 생성
 export const SearchContext = React.createContext<{
@@ -97,10 +97,12 @@ const ModalContainer = styled.div`
   }
 `;
 
-function App() {
+// 앱 내용을 포함하는 컴포넌트 - 인증 상태에 따라 내용을 제어합니다
+const AppContent: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const { isAuthenticated, isLoading } = useAuth();
 
   // 모달 닫기 핸들러
   const handleCloseModal = () => {
@@ -157,46 +159,65 @@ function App() {
     };
   };
 
+  // 인증 로딩 중일 때는 UI 렌더링을 지연시킵니다
+  if (isLoading) {
+    return null;
+  }
+
+  return (
+    <SearchContext.Provider value={{ isSearchOpen, setIsSearchOpen }}>
+      <NotificationsContext.Provider value={{ isNotificationsOpen, setIsNotificationsOpen }}>
+        <PostModalContext.Provider value={{ selectedPostId, setSelectedPostId }}>
+          {/* 헤더는 인증 여부와 상관없이 항상 표시 */}
+          <Header />
+          <AppContainer>
+            <Navigation />
+            <ContentContainer isSearchOpen={isSearchOpen} isNotificationsOpen={isNotificationsOpen}>
+              <Routes>
+                <Route path="/" element={<Navigate to="/home" replace />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/edit" element={<ProfileEdit />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/reels" element={<Reels />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/notifications" element={<div>알림 페이지</div>} />
+                <Route path="/create" element={<Create />} />
+                <Route path="/test" element={<Test />} />
+                
+                {/* 인증 관련 공개 경로 */}
+                <Route path="/login" element={<div>로그인 페이지</div>} />
+                <Route path="/register" element={<div>회원가입 페이지</div>} />
+                <Route path="/forgot-password" element={<div>비밀번호 찾기</div>} />
+                <Route path="/reset-password" element={<div>비밀번호 재설정</div>} />
+              </Routes>
+            </ContentContainer>
+          </AppContainer>
+          
+          {/* 포스트 모달 - 선택된 포스트가 있을 때만 표시 */}
+          {selectedPostId && (
+            <ModalContainer onClick={(e) => e.target === e.currentTarget && handleCloseModal()}>
+              <div onClick={(e) => e.stopPropagation()}>
+                <PostDetail 
+                  post={findPostById(selectedPostId)} 
+                  onClose={handleCloseModal}
+                />
+              </div>
+            </ModalContainer>
+          )}
+        </PostModalContext.Provider>
+      </NotificationsContext.Provider>
+    </SearchContext.Provider>
+  );
+};
+
+function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <Router>
         <AuthProvider>
-          <SearchContext.Provider value={{ isSearchOpen, setIsSearchOpen }}>
-            <NotificationsContext.Provider value={{ isNotificationsOpen, setIsNotificationsOpen }}>
-              <PostModalContext.Provider value={{ selectedPostId, setSelectedPostId }}>
-                <Header />
-                <AppContainer>
-                  <Navigation />
-                  <ContentContainer isSearchOpen={isSearchOpen} isNotificationsOpen={isNotificationsOpen}>
-                    <Routes>
-                      <Route path="/" element={<Feed />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/profile/edit" element={<ProfileEdit />} />
-                      <Route path="/explore" element={<Explore />} />
-                      <Route path="/reels" element={<Reels />} />
-                      <Route path="/messages" element={<Messages />} />
-                      <Route path="/notifications" element={<div>알림 페이지</div>} />
-                      <Route path="/create" element={<Create />} />
-                      <Route path="/test" element={<Test />} />
-                    </Routes>
-                  </ContentContainer>
-                </AppContainer>
-                
-                {/* 포스트 모달 - 선택된 포스트가 있을 때만 표시 */}
-                {selectedPostId && (
-                  <ModalContainer onClick={(e) => e.target === e.currentTarget && handleCloseModal()}>
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <PostDetail 
-                        post={findPostById(selectedPostId)} 
-                        onClose={handleCloseModal}
-                      />
-                    </div>
-                  </ModalContainer>
-                )}
-              </PostModalContext.Provider>
-            </NotificationsContext.Provider>
-          </SearchContext.Provider>
+          <AppContent />
         </AuthProvider>
       </Router>
     </ThemeProvider>
