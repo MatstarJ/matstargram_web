@@ -7,9 +7,30 @@
 </head>
 <body>
     <script>
-        // Keycloak의 silent-check-sso 메커니즘을 위한 스크립트
-        // 이 페이지는 iframe에서 로드되어 SSO 세션 상태를 확인합니다
-        parent.postMessage(location.href, location.origin);
+        // Silent SSO 처리 함수
+        (function() {
+            try {
+                // 현재 URL을 부모 창으로 전달
+                parent.postMessage(location.href, location.origin);
+                console.log('Silent check SSO 메시지 전송 완료');
+            } catch (error) {
+                console.error('Silent check SSO 처리 중 오류:', error);
+                // 추가적인 출처에 메시지 시도
+                const alternativeOrigins = [
+                    'http://localhost:3000',
+                    window.location.origin
+                ];
+                
+                for (const origin of alternativeOrigins) {
+                    try {
+                        parent.postMessage(location.href, origin);
+                        console.log('대체 출처로 전송 시도:', origin);
+                    } catch (e) {
+                        console.error('대체 출처로 전송 실패:', origin, e);
+                    }
+                }
+            }
+        })();
     </script>
 </body>
 </html>

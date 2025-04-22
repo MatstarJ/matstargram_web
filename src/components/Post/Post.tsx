@@ -83,7 +83,7 @@ const Post: React.FC<PostProps> = ({
         </PostOptions>
       </PostHeader>
 
-      <PostImage onClick={handlePostClick}>
+      <PostImage>
         <img src={image} alt="게시물 이미지" />
       </PostImage>
 
@@ -133,24 +133,9 @@ const Post: React.FC<PostProps> = ({
 
       {comments.length > 0 && (
         <PostComments>
-          {comments.length > 2 ? (
-            <>
-              <div onClick={handlePostClick} style={{ cursor: 'pointer', color: '#8e8e8e', marginBottom: '8px' }}>
-                댓글 {comments.length}개 모두 보기
-              </div>
-              {comments.slice(0, 2).map((comment, index) => (
-                <div key={index}>
-                  <strong>{comment.username}</strong> {comment.text}
-                </div>
-              ))}
-            </>
-          ) : (
-            comments.map((comment, index) => (
-              <div key={index}>
-                <strong>{comment.username}</strong> {comment.text}
-              </div>
-            ))
-          )}
+          <div onClick={handlePostClick} style={{ cursor: 'pointer', color: '#8e8e8e', marginBottom: '8px' }}>
+            댓글 {comments.length}개 더 보기
+          </div>
         </PostComments>
       )}
 

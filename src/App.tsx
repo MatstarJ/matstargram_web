@@ -175,15 +175,23 @@ const AppContent: React.FC = () => {
             <ContentContainer isSearchOpen={isSearchOpen} isNotificationsOpen={isNotificationsOpen}>
               <Routes>
                 <Route path="/" element={<Navigate to="/home" replace />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/profile/edit" element={<ProfileEdit />} />
-                <Route path="/explore" element={<Explore />} />
-                <Route path="/reels" element={<Reels />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/notifications" element={<div>알림 페이지</div>} />
-                <Route path="/create" element={<Create />} />
-                <Route path="/test" element={<Test />} />
+                {/* 인증된 사용자만 접근 가능한 경로들 */}
+                {isAuthenticated ? (
+                  <>
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/profile/edit" element={<ProfileEdit />} />
+                    <Route path="/explore" element={<Explore />} />
+                    <Route path="/reels" element={<Reels />} />
+                    <Route path="/messages" element={<Messages />} />
+                    <Route path="/notifications" element={<div>알림 페이지</div>} />
+                    <Route path="/create" element={<Create />} />
+                    <Route path="/test" element={<Test />} />
+                  </>
+                ) : (
+                  // 인증되지 않은 경우 모든 보호된 경로는 빈 컴포넌트로 처리
+                  <Route path="*" element={null} />
+                )}
                 
                 {/* 인증 관련 공개 경로 */}
                 <Route path="/login" element={<div>로그인 페이지</div>} />

@@ -59,7 +59,6 @@ export const PostOptions = styled.button`
 
 export const PostImage = styled.div`
   width: 100%;
-  cursor: pointer;
   
   img {
     width: 100%;

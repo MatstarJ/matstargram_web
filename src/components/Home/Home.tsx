@@ -39,17 +39,13 @@ const Spinner = styled.div`
 const Home: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
   
-  // 로딩 중이거나 인증되지 않은 경우 컨텐츠를 표시하지 않음
-  if (isLoading) {
-    return (
-      <LoadingContainer>
-        <Spinner />
-      </LoadingContainer>
-    );
+  // 로딩 중이거나 인증되지 않은 경우 아무것도 표시하지 않음
+  if (isLoading || !isAuthenticated) {
+    return null;
   }
   
   // 인증된 경우에만 Feed 컴포넌트 표시
-  return isAuthenticated ? <Feed /> : null;
+  return <Feed />;
 };
 
 export default Home; 

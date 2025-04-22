@@ -8,6 +8,7 @@ import {
 } from './Header.styles';
 import { useAuth } from '../../contexts/AuthContext';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 // 로그인 버튼 스타일
 const LoginButton = styled.button`
@@ -44,14 +45,35 @@ const LogoutButton = styled.button`
   }
 `;
 
+// 링크 스타일
+const StyledLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+`;
+
 const Header: React.FC = () => {
   const { isAuthenticated, login, logout } = useAuth();
+
+  // 로그인 핸들러
+  const handleLogin = () => {
+    console.log('로그인 시도...');
+    login();
+  };
+
+  // 로그아웃 핸들러
+  const handleLogout = () => {
+    console.log('로그아웃 시도...');
+    logout();
+  };
 
   return (
     <HeaderContainer>
       <HeaderContent>
         <Logo>
-          <a href="/home">Instagram</a>
+          <StyledLink to="/home">Instagram</StyledLink>
         </Logo>
         
         {isAuthenticated ? (
@@ -64,10 +86,10 @@ const Header: React.FC = () => {
               <input type="text" placeholder="검색" />
             </MobileSearchBar>
             
-            <LogoutButton onClick={logout}>로그아웃</LogoutButton>
+            <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
           </>
         ) : (
-          <LoginButton onClick={login}>로그인</LoginButton>
+          <LoginButton onClick={handleLogin}>로그인</LoginButton>
         )}
       </HeaderContent>
     </HeaderContainer>
